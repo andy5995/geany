@@ -159,13 +159,26 @@ static bool recurseUsingOpendir (const char *const dirName)
 
 #elif defined (HAVE_FINDFIRST) || defined (HAVE__FINDFIRST)
 
+/*
+ * Checks for . and .. directories
+ */
+static bool isdotdir (const char *dir)
+{
+	if (dir[0] != '.')
+		return false;
+	if (dir[1] == '\0' || (dir[1] == '.' && dir[2] == '\0'))
+		return true;
+	return false;
+}
+
+
 static bool createTagsForWildcardEntry (
 		const char *const pattern, const size_t dirLength,
 		const char *const entryName)
 {
 	bool resize = false;
 	/* we must not recurse into the directories "." or ".." */
-	if (strcmp (entryName, ".") != 0  &&  strcmp (entryName, "..") != 0)
+	if (isdotdir (entryName) == false)
 	{
 		vString *const filePath = vStringNew ();
 		vStringNCopyS (filePath, pattern, dirLength);
